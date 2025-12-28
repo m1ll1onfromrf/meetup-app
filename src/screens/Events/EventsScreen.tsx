@@ -1,6 +1,6 @@
+import EventsMap from '@/components/EventsMap/EventsMap';
+import { useEvents } from '@/hooks/useEvents';
 import { View } from 'react-native';
-import { useEvents } from 'src/hooks/useEvents';
-import EventsMap from './EventsMap';
 
 export default function EventsScreen() {
   const { events } = useEvents();

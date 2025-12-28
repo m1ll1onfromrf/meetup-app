@@ -1,6 +1,6 @@
+import { getEvents } from '@/services/events.service';
+import { Event } from '@/types/event';
 import { useState } from 'react';
-import { getEvents } from 'src/services/events.service';
-import { Event } from 'src/types/event';
 
 export function useEvents() {
   const [events, setEvents] = useState<Event[]>(getEvents());
