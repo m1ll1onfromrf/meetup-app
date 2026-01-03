@@ -1,2 +1,3 @@
-export * from './events.service';
+export { eventsService } from './events.service';
 export * from './location.service';
+

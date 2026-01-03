@@ -17,10 +17,12 @@ const MOCK_EVENTS: Event[] = [
   },
 ];
 
-export function getEvents(): Event[] {
-  return MOCK_EVENTS;
-}
+export const eventsService = {
+  getEvents(): Event[] {
+    return MOCK_EVENTS;
+  },
 
-export function createEvent(event: Event) {
-  MOCK_EVENTS.push(event);
-}
+  createEvent(event: Event) {
+    MOCK_EVENTS.push(event);
+  },
+};
