@@ -1,5 +1,5 @@
 // src/components/EventsMap/EventsMap.tsx
-import { Event } from '@/types/event';
+import { Event } from '@/types';
 import { StyleSheet, Text, View } from 'react-native';
 
 type Props = {

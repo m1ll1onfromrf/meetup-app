@@ -1,5 +1,5 @@
-import { getEvents } from '@/services/events.service';
-import { Event } from '@/types/event';
+import { getEvents } from '@/services';
+import { Event } from '@/types';
 import { useState } from 'react';
 
 export function useEvents() {
