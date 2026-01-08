@@ -1,25 +1,18 @@
-import { EventCard } from '@/components';
+import { EventList, EventsMap } from '@/components';
 import { useEvents } from '@/hooks';
-import { FlatList, Text, View } from 'react-native';
+import { View } from 'react-native';
 
 export default function EventsScreen() {
-  const { events, loading } = useEvents();
+  const { events } = useEvents();
 
-  if (loading) {
-    return <Text>Загрузка событий...</Text>;
-  }
+  const handleSelect = (event) => {
+    console.log('Выбрано событие:', event.id);
+  };
 
   return (
-    <View style={{ flex: 1, padding: 16 }}>
-      <Text style={{ fontSize: 20, marginBottom: 12 }}>
-        События ({events.length})
-      </Text>
-
-      <FlatList
-        data={events}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <EventCard event={item} />}
-      />
+    <View style={{ flex: 1 }}>
+      <EventsMap events={events} />
+      <EventList events={events} onSelect={handleSelect} />
     </View>
   );
 }

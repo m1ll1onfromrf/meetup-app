@@ -1,18 +1,21 @@
 import { Event } from '@/types';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
 
 type Props = {
   event: Event;
+  onPress?: () => void;
 };
 
-export default function EventCard({ event }: Props) {
+export function EventCard({ event, onPress }: Props) {
   return (
-    <View style={styles.card}>
-      <Text style={styles.title}>{event.title}</Text>
-      <Text style={styles.type}>{event.type}</Text>
-    </View>
+    <Pressable onPress={onPress} style={{ padding: 12 }}>
+      <Text>{event.title}</Text>
+      <Text>{event.type}</Text>
+    </Pressable>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   card: {
