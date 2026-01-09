@@ -1,28 +1,27 @@
-import { Event } from '@/types';
+import { useEvents } from '@/context';
 import { StyleSheet, Text, View } from 'react-native';
 
 type Props = {
-  event: Event | undefined;
+  eventId: string;
 };
 
-export default function EventDetailsScreen({ event }: Props) {
+export default function EventDetailsScreen({ eventId }: Props) {
+  const { events } = useEvents();
+
+  const event = events.find(e => e.id === eventId);
+
   if (!event) {
-    return (
-      <View style={styles.container}>
-        <Text>Событие не найдено</Text>
-      </View>
-    );
+    return <Text>Событие не найдено</Text>;
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{event.title}</Text>
-      <Text>Тип: {event.type}</Text>
-      <Text>Широта: {event.lat}</Text>
-      <Text>Долгота: {event.lng}</Text>
+    <View>
+      <Text>{event.title}</Text>
+      <Text>{event.type}</Text>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

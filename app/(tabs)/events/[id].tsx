@@ -1,12 +1,10 @@
-import { useEvents } from '@/hooks';
 import EventDetailsScreen from '@/screens/EventDetails/EventDetailScreen';
 import { useLocalSearchParams } from 'expo-router';
 
 export default function EventDetailsRoute() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { events } = useEvents();
 
-  const event = events.find(e => e.id === id);
+  if (!id) return null;
 
-  return <EventDetailsScreen event={event} />;
+  return <EventDetailsScreen eventId={id} />;
 }
