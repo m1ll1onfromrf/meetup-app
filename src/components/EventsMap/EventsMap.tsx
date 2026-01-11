@@ -6,6 +6,10 @@ type Props = {
   events: Event[];
   selectedEvent?: Event | null;
   onSelect?: (event: Event) => void;
+  userLocation?: {
+    latitude: number;
+    longitude: number;
+  } | null;
 };
 
 
@@ -13,9 +17,21 @@ export default function EventsMap({
   events,
   selectedEvent,
   onSelect,
+  userLocation,
 }: Props) {
   return (
-    <MapView style={styles.map}>
+    console.log(userLocation),
+    <MapView
+      style={styles.map}
+      initialRegion={{
+        latitude:
+          userLocation?.latitude ?? events[0]?.lat ?? 55.75,
+        longitude:
+          userLocation?.longitude ?? events[0]?.lng ?? 37.61,
+        latitudeDelta: 0.05,
+        longitudeDelta: 0.05,
+      }}
+    >
       {events.map(event => (
         <Marker
           key={event.id}
@@ -25,12 +41,20 @@ export default function EventsMap({
             selectedEvent?.id === event.id
               ? 'blue'
               : event.type === 'vip'
-              ? 'gold'
+              ? '#FFD700'
               : 'red'
           }
           onPress={() => onSelect?.(event)}
         />
       ))}
+
+      {userLocation && (
+        <Marker
+          coordinate={userLocation}
+          title="Вы здесь"
+          pinColor="blue"
+        />
+      )}
     </MapView>
   );
 }

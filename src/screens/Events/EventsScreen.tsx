@@ -1,22 +1,20 @@
-import EventsMap from '@/components/EventsMap/EventsMap';
+import { EventsMap } from '@/components';
 import { useEvents } from '@/context';
-import { useRouter } from 'expo-router';
-import { Button, View } from 'react-native';
+import { useLocation } from '@/hooks';
+import { View } from 'react-native';
 
 export default function EventsScreen() {
   const { events } = useEvents();
-  const router = useRouter();
+  const { location } = useLocation();
+
+  console.log('USER LOCATION:', location);
 
   return (
     <View style={{ flex: 1 }}>
-      <EventsMap events={events} />
-
-      <View style={{ padding: 16 }}>
-        <Button
-          title="Найти мероприятие"
-          onPress={() => router.push('/search-events')}
-        />
-      </View>
+      <EventsMap
+        events={events}
+        userLocation={location}
+      />
     </View>
   );
 }
