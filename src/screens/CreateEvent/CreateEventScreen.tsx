@@ -1,36 +1,57 @@
-import * as Location from 'expo-location';
-import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { Alert, Button, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useEvents } from "@/context";
+import { Event } from "@/types";
+import * as Location from "expo-location";
+import { useRouter } from "expo-router";
+import { useState } from "react";
+import {
+  Alert,
+  Button,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function CreateEventScreen() {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  const { addEvent } = useEvents();
 
   const handleCreateEvent = async () => {
     try {
       setIsLoading(true);
 
       const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Нужен доступ к геолокации');
+      if (status !== "granted") {
+        Alert.alert("Нужен доступ к геолокации");
         return;
       }
 
-      const location = await Location.getCurrentPositionAsync({});
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      });
+
       const { latitude, longitude } = location.coords;
 
-      // Имитация создания события — позже заменить на реальный запрос к API
-      console.log('Создание события:', { title, description, latitude, longitude });
+      const newEvent: Event = {
+        id: crypto.randomUUID(),
+        title,
+        lat: latitude,
+        lng: longitude,
+        type: "regular", // или 'vip'
+      };
 
-      Alert.alert('Успех!', 'Встреча создана');
+      addEvent(newEvent);
+
+      Alert.alert("Успех!", "Встреча создана");
       router.back();
-
     } catch (error) {
-      console.error('Error creating event:', error);
-      Alert.alert('Ошибка', 'Не удалось создать встречу');
+      console.error("Error creating event:", error);
+      Alert.alert("Ошибка", "Не удалось создать встречу");
     } finally {
       setIsLoading(false);
     }
@@ -76,35 +97,35 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 24,
-    textAlign: 'center',
-    color: '#1e293b',
+    textAlign: "center",
+    color: "#1e293b",
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     padding: 12,
     borderRadius: 8,
     marginBottom: 16,
     fontSize: 16,
-    color: '#1e293b',
+    color: "#1e293b",
   },
   textArea: {
     height: 120,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   backButton: {
     marginTop: 20,
     padding: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   backButtonText: {
-    color: '#007AFF',
+    color: "#007AFF",
     fontSize: 16,
   },
 });
