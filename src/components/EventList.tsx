@@ -1,12 +1,11 @@
-import { Event } from '@/types';
-import { FlatList, View } from 'react-native';
-import { EventCard } from '../components/EventCard';
+import { Event } from "@/types";
+import { FlatList, View } from "react-native";
+import { EventCard } from "../components/EventCard";
 
 type Props = {
   events: Event[];
   onSelect: (event: Event) => void;
 };
-
 
 export default function EventList({ events, onSelect }: Props) {
   return (
@@ -15,11 +14,7 @@ export default function EventList({ events, onSelect }: Props) {
         data={events}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <EventCard
-            event={item}
-            onPress={() => onSelect(item)}
-          />
-
+          <EventCard event={item} onPress={() => onSelect(item)} />
         )}
       />
     </View>

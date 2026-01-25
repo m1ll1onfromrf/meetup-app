@@ -1,6 +1,6 @@
-import { eventsService } from '@/services';
-import { Event } from '@/types';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { eventsService } from "@/services";
+import { Event } from "@/types";
+import { createContext, useContext, useEffect, useState } from "react";
 
 type EventsContextValue = {
   events: Event[];
@@ -17,8 +17,7 @@ export function EventsProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const addEvent = (event: Event) => {
-    eventsService.createEvent(event);
-    setEvents(prev => [...prev, event]);
+    setEvents((prev) => [...prev, event]);
   };
 
   return (
@@ -32,7 +31,7 @@ export function useEvents() {
   const context = useContext(EventsContext);
 
   if (!context) {
-    throw new Error('useEvents must be used within EventsProvider');
+    throw new Error("useEvents must be used within EventsProvider");
   }
 
   return context;

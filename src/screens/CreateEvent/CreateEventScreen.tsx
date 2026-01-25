@@ -1,5 +1,6 @@
 import { useEvents } from "@/context";
 import { Event } from "@/types";
+import * as crypto from "expo-crypto";
 import * as Location from "expo-location";
 import { useRouter } from "expo-router";
 import { useState } from "react";
