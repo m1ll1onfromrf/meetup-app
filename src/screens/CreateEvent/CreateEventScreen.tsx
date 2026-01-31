@@ -46,7 +46,7 @@ export default function CreateEventScreen() {
         type: "regular", // или 'vip'
       };
 
-      addEvent(newEvent);
+      await addEvent(newEvent);
 
       Alert.alert("Успех!", "Встреча создана");
       router.back();

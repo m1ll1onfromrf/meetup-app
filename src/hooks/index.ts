@@ -1,2 +1,1 @@
-export { useEvents } from './useEvents';
-export { useLocation } from './useLocation';
+export { useLocation } from "./useLocation";
