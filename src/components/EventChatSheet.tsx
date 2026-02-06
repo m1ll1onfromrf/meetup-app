@@ -28,7 +28,7 @@ type Props = {
 };
 
 const SPRING = { damping: 35, stiffness: 300 };
-const COLLAPSED_H = 150;
+const COLLAPSED_H = 160;
 
 export default function EventChatSheet({
   eventId,
@@ -42,8 +42,8 @@ export default function EventChatSheet({
 
   // позиции
   const expandedY = Math.max(topInset, 80);
-  const collapsedY = Math.max(expandedY + 126, H - COLLAPSED_H);
-  const hiddenY = H + 10;
+  const collapsedY = Math.max(expandedY + 120, H - COLLAPSED_H);
+  const hiddenY = H + 40;
 
   const sheetY = useSharedValue(hiddenY);
   const [expanded, setExpanded] = useState(false);
