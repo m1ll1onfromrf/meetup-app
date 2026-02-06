@@ -1,17 +1,18 @@
 plugins: [
   [
-    'module-resolver',
+    "module-resolver",
     {
       alias: {
-        'src': './src', // Теперь можно: import ... from 'src/services/...'
+        src: "./src", // Теперь можно: import ... from 'src/services/...'
       },
-      extensions: ['.js', '.jsx', '.ts', '.tsx'],
+      extensions: [".js", ".jsx", ".ts", ".tsx"],
     },
   ],
-]
+];
 module.exports = function (api) {
   api.cache(true);
   return {
-    presets: ['babel-preset-expo'],
+    presets: ["babel-preset-expo"],
+    plugins: ["react-native-reanimated/plugin"],
   };
 };

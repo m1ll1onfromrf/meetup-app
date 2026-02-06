@@ -1,6 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
-import { Alert, Button, StyleSheet, Text, View } from "react-native";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Alert,
+  Button,
+  LayoutChangeEvent,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
+import { EventChatSheet } from "@/components";
 import { useEvents } from "@/context";
 import { getDeviceUserId, membersService } from "@/services";
 
@@ -15,12 +23,29 @@ export default function EventDetailsScreen({ eventId }: Props) {
     [events, eventId],
   );
 
+  const [chatOpenTick, setChatOpenTick] = useState(0);
+  const [joinedOptimistic, setJoinedOptimistic] = useState(false);
+
   const [userId, setUserId] = useState<string | null>(null);
   const [members, setMembers] = useState<string[]>([]);
   const [loadingMembers, setLoadingMembers] = useState(true);
   const [joining, setJoining] = useState(false);
 
+  const [containerHeight, setContainerHeight] = useState(0);
+
+  // высота верхней части (заголовок + кнопка)
+  const [topInset, setTopInset] = useState(160);
+
   const isJoined = userId ? members.includes(userId) : false;
+  const isJoinedForUi = isJoined || joinedOptimistic;
+
+  const containerHeightRef = useRef<number | null>(null);
+
+  const onHeaderLayout = (e: LayoutChangeEvent) => {
+    const h = e.nativeEvent.layout.height;
+    // + небольшой запас, чтобы “шит” точно не перекрыл заголовок
+    if (h > 60) setTopInset(h + 12);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -34,11 +59,11 @@ export default function EventDetailsScreen({ eventId }: Props) {
         if (cancelled) return;
         setUserId(id);
         setMembers(list);
+        if (id) setJoinedOptimistic(list.includes(id));
       } catch (e) {
         console.error("Failed to load members:", e);
-        if (!cancelled) {
+        if (!cancelled)
           Alert.alert("Ошибка", "Не удалось загрузить участников");
-        }
       } finally {
         if (!cancelled) setLoadingMembers(false);
       }
@@ -51,35 +76,35 @@ export default function EventDetailsScreen({ eventId }: Props) {
   }, [eventId]);
 
   const handleToggleJoin = async () => {
-    if (!event) return;
-    if (!userId) return;
+    if (!event || !userId) return;
 
     try {
       setJoining(true);
 
       if (isJoined) {
-        // оптимистично убираем себя
         setMembers((prev) => prev.filter((x) => x !== userId));
+        setJoinedOptimistic(false);
         await membersService.leaveEvent(eventId, userId);
       } else {
-        // оптимистично добавляем себя
         setMembers((prev) =>
           prev.includes(userId) ? prev : [...prev, userId],
         );
         await membersService.joinEvent(eventId, userId);
+        setJoinedOptimistic(true);
+        setChatOpenTick((t) => t + 1);
       }
 
-      // Подтягиваем “истину” с сервера (на случай гонок)
       const list = await membersService.getEventMembers(eventId);
       setMembers(list);
+      setJoinedOptimistic(list.includes(userId));
     } catch (e) {
       console.error("Join/Leave failed:", e);
       Alert.alert("Ошибка", "Не удалось выполнить действие. Попробуй ещё раз.");
 
-      // откатим состояние, подтянув серверную правду
       try {
         const list = await membersService.getEventMembers(eventId);
         setMembers(list);
+        setJoinedOptimistic(list.includes(userId));
       } catch {}
     } finally {
       setJoining(false);
@@ -91,24 +116,45 @@ export default function EventDetailsScreen({ eventId }: Props) {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{event.title}</Text>
-      <Text style={styles.subtitle}>Тип: {event.type}</Text>
-
-      <Text style={styles.members}>
-        Участники: {loadingMembers ? "загрузка..." : members.length}
-      </Text>
-
-      <View style={styles.buttonWrap}>
-        <Button
-          title={
-            joining ? "Подождите..." : isJoined ? "Покинуть" : "Присоединиться"
+    <View
+      style={styles.container}
+      onLayout={(e) => setContainerHeight(e.nativeEvent.layout.height)}
+    >
+      {/* HEADER: именно это должно оставаться видимым даже когда чат раскрыт */}
+      <View
+        //onLayout={onHeaderLayout}
+        style={styles.header}
+        onLayout={(e) => {
+          const h = e.nativeEvent.layout.height;
+          if (containerHeightRef.current === null && h > 0) {
+            containerHeightRef.current = h;
+            setContainerHeight(h);
           }
-          onPress={handleToggleJoin}
-          disabled={joining || loadingMembers || !userId}
-        />
+        }}
+      >
+        <Text style={styles.title}>{event.title}</Text>
+        <Text style={styles.subtitle}>Тип: {event.type}</Text>
+
+        <Text style={styles.members}>
+          Участники: {loadingMembers ? "загрузка..." : members.length}
+        </Text>
+
+        <View style={styles.buttonWrap}>
+          <Button
+            title={
+              joining
+                ? "Подождите..."
+                : isJoined
+                  ? "Покинуть"
+                  : "Присоединиться"
+            }
+            onPress={handleToggleJoin}
+            disabled={joining || loadingMembers || !userId}
+          />
+        </View>
       </View>
 
+      {/* BODY: остальная детализация (пока пустая, но сюда ты добавишь описание и т.д.) */}
       {!loadingMembers && members.length > 0 && (
         <View style={styles.membersList}>
           <Text style={styles.membersHeader}>Кто идёт:</Text>
@@ -122,6 +168,18 @@ export default function EventDetailsScreen({ eventId }: Props) {
           )}
         </View>
       )}
+
+      {/* CHAT: появляется только если joined */}
+      {isJoinedForUi && userId && containerHeight > 0 && (
+        <EventChatSheet
+          eventId={eventId}
+          userId={userId}
+          enabled={true}
+          topInset={topInset}
+          openTick={1}
+          containerHeight={containerHeight}
+        />
+      )}
     </View>
   );
 }
@@ -129,6 +187,8 @@ export default function EventDetailsScreen({ eventId }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  header: {
     padding: 16,
     gap: 10,
   },
@@ -140,14 +200,15 @@ const styles = StyleSheet.create({
     color: "#475569",
   },
   members: {
-    marginTop: 8,
+    marginTop: 2,
     fontSize: 16,
   },
   buttonWrap: {
-    marginTop: 6,
+    marginTop: 2,
   },
   membersList: {
-    marginTop: 14,
+    marginTop: 6,
+    marginHorizontal: 16,
     padding: 12,
     borderWidth: 1,
     borderColor: "#e2e8f0",
